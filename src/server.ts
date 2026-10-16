@@ -23,7 +23,12 @@ import { toSafeCsv } from "./lib/csv.js";
 import { fontPresetCss, FONT_PRESETS } from "./lib/fonts.js";
 import { findProvinces } from "./lib/places.js";
 
-export const VERSION = "0.2.0";
+import { persianTextStats, detectTextDirection, truncatePersian, persianLorem } from "./lib/textutil.js";
+import { formatShortNumber, decimalToPersianWords, formatIranPhone } from "./lib/numfmt.js";
+import { jalaliAge, validateJalaliDate, isBusinessDay, addBusinessDays, countBusinessDays, fixedHolidays, LUNAR_HOLIDAYS_HIJRI, todayJalali } from "./lib/dates2.js";
+import { parseIranAddress } from "./lib/address.js";
+
+export const VERSION = "0.3.0";
 
 export function createServer(): McpServer {
 const server = new McpServer({ name: "parsi-mcp", version: VERSION });
@@ -158,6 +163,51 @@ server.tool("persian_font_preset", "CSS for Persian fonts (vazirmatn, shabnam, s
   async ({ font, selector }) => safe(() => fontPresetCss(font, { selector })));
 server.tool("iran_provinces", "List Iran's 31 provinces with ISO 3166-2 code, Persian/English names and capital. Optional query matches Persian or English names (letter-variant tolerant).",
   { query: z.string().optional() }, async ({ query }) => json({ provinces: findProvinces(query) }));
+
+
+const jd = z.object({ year: z.number().int(), month: z.number().int(), day: z.number().int() });
+const jdate = z.union([jd, z.string()]).describe("Jalali date as {year,month,day} or text like '1405/07/24'");
+const asJ = (v: z.infer<typeof jdate>) => (typeof v === "string" ? parseJalali(v) : v);
+const bizShape = { weekend: z.enum(["friday", "thursday_friday"]).optional().describe("Weekend days; default friday only"), holidays: z.array(z.string()).max(500).optional().describe("Extra Jalali holiday dates you supply, e.g. '1405/01/01'"), includeFixedSolarHolidays: z.boolean().optional() };
+
+server.tool("persian_text_stats", "Character, letter, digit, ZWNJ, word, sentence and paragraph counts for Persian/mixed text, plus reading time. wordsPerMinute is an adjustable assumption (default 180).",
+  { text: z.string().max(1_000_000), wordsPerMinute: z.number().positive().max(2000).optional() },
+  async ({ text, wordsPerMinute }) => safe(() => persianTextStats(text, wordsPerMinute)));
+server.tool("detect_text_direction", "Detect text direction (first-strong and dominant script, mixed flag) and optionally wrap the text bidi-safely: Unicode isolates (FSI/RLI/LRI) or HTML <bdi> / dir=auto. Use for usernames, product names and mixed Persian/English strings.",
+  { text: z.string(), wrap: z.enum(["isolate", "rli", "lri", "html-bdi", "html-dir-auto"]).optional() },
+  async ({ text, wrap }) => json(detectTextDirection(text, wrap)));
+server.tool("truncate_persian_text", "Truncate text to maxLength (ellipsis included) without breaking words, ZWNJ-joined words, surrogate pairs or diacritics. mode 'word' (default) or 'char'.",
+  { text: z.string(), maxLength: z.number().int().min(1).max(100000), ellipsis: z.string().max(10).optional(), mode: z.enum(["word", "char"]).optional() },
+  async ({ text, maxLength, ellipsis, mode }) => json(truncatePersian(text, maxLength, { ellipsis, mode })));
+server.tool("persian_lorem_ipsum", "Deterministic Persian placeholder text (seeded, original word list; not real prose) for mockups.",
+  { paragraphs: z.number().int().min(1).max(50).optional(), sentencesPerParagraph: z.number().int().min(1).max(30).optional(), wordsPerSentence: z.number().int().min(3).max(40).optional(), seed: z.number().int().optional() },
+  async (a) => json({ text: persianLorem(a) }));
+server.tool("format_iran_phone", "Display formats for an Iranian mobile (0912 345 6789, +98 912 345 6789, E.164) or landline (021-12345678). Accepts Persian digits, +98, 0098.",
+  { value: z.string(), persianDigits: z.boolean().optional() }, async ({ value, persianDigits }) => safe(() => formatIranPhone(value, persianDigits)));
+server.tool("format_short_number", "Short Persian number form: 2500000 -> '۲٫۵ میلیون', 1200 -> '۱٫۲ هزار' (style 'latin' gives 2.5M). Optional unit like تومان.",
+  { value: z.number(), style: z.enum(["persian", "latin"]).optional(), persianDigits: z.boolean().optional(), maxFraction: z.number().int().min(0).max(3).optional(), unit: z.string().max(20).optional() },
+  async ({ value, ...o }) => safe(() => formatShortNumber(value, o)));
+server.tool("decimal_to_persian_words", "Decimals, percents and fractions in Persian words: '12.5' -> 'دوازده ممیز پنج دهم', percent adds درصد, fraction '3/4' -> 'سه چهارم'.",
+  { value: z.string(), mode: z.enum(["decimal", "percent", "fraction"]).optional(), halfAsNim: z.boolean().optional() },
+  async ({ value, mode, halfAsNim }) => safe(() => decimalToPersianWords(value, mode, { halfAsNim })));
+server.tool("jalali_age", "Age (years, months, days, total days) from a Jalali birth date. asOf defaults to today.",
+  { birth: jdate, asOf: jdate.optional() }, async ({ birth, asOf }) => safe(() => jalaliAge(asJ(birth), asOf ? asJ(asOf) : todayJalali())));
+server.tool("validate_jalali_date", "Form validation for a Jalali date with readable reasons: month/day ranges (leap-aware), min, max and notFuture checks. Never throws.",
+  { date: jd, min: jdate.optional(), max: jdate.optional(), notFuture: z.boolean().optional() },
+  async ({ date, min, max, notFuture }) => safe(() => validateJalaliDate(date, { min: min ? asJ(min) : undefined, max: max ? asJ(max) : undefined, notFuture })));
+server.tool("iran_business_days", "Business-day helper: op 'is_business_day', 'add' (days may be negative) or 'count' (days after 'date' up to and including 'to'). Weekend is Friday (optionally Thursday too); supply holidays yourself or enable the fixed solar ones.",
+  { op: z.enum(["is_business_day", "add", "count"]), date: jdate, days: z.number().int().optional(), to: jdate.optional(), ...bizShape },
+  async ({ op, date, days, to, ...o }) => safe(() => {
+    const d = asJ(date);
+    if (op === "is_business_day") return { businessDay: isBusinessDay(d, o) };
+    if (op === "add") { if (days === undefined) throw new Error("days is required"); const r = addBusinessDays(d, days, o); return { result: r, formatted: `${r.year}/${String(r.month).padStart(2, "0")}/${String(r.day).padStart(2, "0")}` }; }
+    if (!to) throw new Error("to is required"); return { businessDays: countBusinessDays(d, asJ(to), o) };
+  }));
+server.tool("iran_holidays", "Fixed solar-calendar public holidays of a Jalali year (Nowruz 1-4 Farvardin, 12-13 Farvardin, 14-15 Khordad, 22 Bahman, 29 Esfand) with Gregorian dates, plus the Hijri-based holiday list WITHOUT dates. Lunar holidays shift yearly and need the official annual calendar.",
+  { year: z.number().int().min(1).max(3177) },
+  async ({ year }) => safe(() => ({ year, fixedSolar: fixedHolidays(year), lunarHolidaysHijri: LUNAR_HOLIDAYS_HIJRI, note: "Lunar (Hijri) holiday dates are not included: they depend on moon sighting and the official yearly calendar." })));
+server.tool("parse_iran_address", "Heuristically extract province, city (province capitals only), valid postal code, and plaque/unit/floor numbers from a Persian address string.",
+  { text: z.string().max(2000) }, async ({ text }) => json(parseIranAddress(text)));
 
 server.prompt("rtl-frontend-guidelines", "Guidelines for building RTL-first Persian frontends (load before designing UI).",
   async () => ({ messages: [{ role: "user" as const, content: { type: "text" as const, text: rtlGuidelines() } }] }));
