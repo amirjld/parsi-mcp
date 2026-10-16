@@ -1,0 +1,15 @@
+{
+  "name": "parsi",
+  "displayName": "Parsi (Persian / Iran tools)",
+  "version": "0.2.0",
+  "description": "Persian and Iran-specific tools for AI agents: Jalali calendar, validators (national ID, card, Sheba), Persian text, price inputs with Persian words, RTL frontend audit and snippets.",
+  "author": { "name": "Amir Hossein", "url": "https://github.com/amirjld" },
+  "homepage": "https://github.com/amirjld/parsi-mcp",
+  "repository": "https://github.com/amirjld/parsi-mcp",
+  "license": "MIT",
+  "keywords": ["persian", "farsi", "iran", "jalali", "rtl", "mcp"],
+  "skills": "./skills",
+  "mcpServers": {
+    "parsi": { "command": "npx", "args": ["-y", "parsi-mcp@0.2.0"] }
+  }
+}

@@ -22,3 +22,9 @@ Build every UI for Persian users as RTL by default. Use the `parsi-mcp` tools in
 
 ## Before finishing
 Check the page in RTL: layout flow, icon directions, input alignment, mixed English and number text, and form validation messages in Persian.
+## More tools worth calling
+
+- `jalali_month_grid` for date-picker UIs, `jalali_period_range` for report periods (week starts Saturday), `persian_relative_time` for "۳ روز پیش".
+- `persian_sort` and `persian_fuzzy_search` for lists and search boxes (handles ي/ی, ك/ک, آ/ا and ZWNJ).
+- `persian_font_preset` for Vazirmatn, Shabnam or Sahel CSS; `csv_export_safe` for Excel-friendly exports.
+- `iran_provinces` for province dropdowns; `fix_keyboard_layout` when users type Persian on an English layout.

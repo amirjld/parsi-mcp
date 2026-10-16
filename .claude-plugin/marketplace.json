@@ -1,0 +1,13 @@
+{
+  "name": "parsi-mcp",
+  "description": "Persian/Iranian developer tools for AI agents: Jalali dates, validators, RTL frontend, price inputs.",
+  "owner": { "name": "Amir Hossein", "url": "https://github.com/amirjld" },
+  "plugins": [
+    {
+      "name": "parsi",
+      "source": "./",
+      "description": "parsi-mcp server (44 offline tools) plus the persian-rtl-frontend skill: RTL-first UI, grouped price inputs with Persian words, Jalali dates, Iranian validators.",
+      "category": "development"
+    }
+  ]
+}
