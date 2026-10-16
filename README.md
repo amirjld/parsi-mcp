@@ -70,3 +70,6 @@ Each tool is a small pure function in `src/lib`, so adding one is easy. Contribu
 
 MIT
 
+## Agent skill
+
+A ready-made skill lives in skills/persian-rtl-frontend/SKILL.md. Copy it into your agent's skills folder so it uses RTL and these tools by default when building Persian UIs.
