@@ -1,19 +1,63 @@
 {
   "name": "parsi-mcp",
-  "version": "0.1.0",
-  "description": "MCP server with Iran-specific tools: Jalali calendar, validators, Persian text and money helpers",
+  "version": "0.2.0",
+  "mcpName": "io.github.amirjld/parsi-mcp",
+  "description": "MCP server for Persian/Iranian apps: Jalali calendar, validators, Persian text, price inputs, RTL frontend tools",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "persian",
+    "farsi",
+    "iran",
+    "jalali",
+    "shamsi",
+    "rtl",
+    "toman",
+    "sheba",
+    "claude-code",
+    "cursor",
+    "skills"
+  ],
+  "author": "Amir Hossein (https://github.com/amirjld)",
+  "license": "MIT",
+  "homepage": "https://github.com/amirjld/parsi-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amirjld/parsi-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amirjld/parsi-mcp/issues"
+  },
+  "type": "module",
   "main": "dist/index.js",
-  "directories": {
-    "test": "test"
+  "bin": {
+    "parsi-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "docs",
+    "skills",
+    ".claude-plugin",
+    "TOOLS.md",
+    "README.md",
+    "README.fa.md",
+    "LICENSE",
+    "server.json"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
-    "test": "node --import tsx --test test/*.test.ts"
+    "test": "node --import tsx --test test/*.test.ts",
+    "docs:tools": "tsx scripts/gen-tools-doc.ts",
+    "prepublishOnly": "npm run build && npm test",
+    "prepack": "npm run build"
   },
-  "keywords": [],
-  "author": "",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
     "jalaali-js": "^2.0.1",
@@ -24,10 +68,5 @@
     "@types/node": "^26.6.5",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
-  },
-  "type": "module",
-  "bin": {
-    "parsi-mcp": "dist/index.js"
-  },
-  "license": "MIT"
+  }
 }
