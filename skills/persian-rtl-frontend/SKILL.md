@@ -28,3 +28,6 @@ Check the page in RTL: layout flow, icon directions, input alignment, mixed Engl
 - `persian_sort` and `persian_fuzzy_search` for lists and search boxes (handles ي/ی, ك/ک, آ/ا and ZWNJ).
 - `persian_font_preset` for Vazirmatn, Shabnam or Sahel CSS; `csv_export_safe` for Excel-friendly exports.
 - `iran_provinces` for province dropdowns; `fix_keyboard_layout` when users type Persian on an English layout.
+- `format_short_number` ("۲٫۵ میلیون"), `decimal_to_persian_words`, `format_iran_phone` for display; `truncate_persian_text` instead of `slice` (keeps ZWNJ words intact).
+- `detect_text_direction` with `wrap` for mixed Persian/English usernames and titles (or use `dir="auto"` / `<bdi>`).
+- `validate_jalali_date`, `jalali_age`, `iran_business_days`, `iran_holidays` for forms and scheduling; `parse_iran_address` for address fields; `persian_text_stats` for editors; `persian_lorem_ipsum` for mockups.

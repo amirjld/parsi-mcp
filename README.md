@@ -4,7 +4,7 @@
 
 An MCP server that gives AI agents (Claude, Cursor, VS Code Copilot and others) reliable Persian and Iran-specific tools. It runs fully offline, with no API keys: Jalali dates, Iranian validators, Persian text handling, grouped price inputs with Persian words, and an RTL frontend toolkit.
 
-44 tools. See the full list in [TOOLS.md](TOOLS.md).
+56 tools. See the full list in [TOOLS.md](TOOLS.md).
 
 ## Install
 
@@ -75,16 +75,16 @@ You ask: *"Build a checkout page in Persian with a price field."*
 
 | Area | Highlights |
 |---|---|
-| Jalali calendar | convert, format, parse, add, diff, month grid for date pickers, week/month/quarter/year ranges, relative text (`۳ روز پیش`) |
-| Iranian validators | national ID, legal-entity national ID, bank card, Sheba, mobile, postal code, bank and operator lookup |
-| Persian text | normalization, ZWNJ fixes, digits, number and ordinal words, words to number, slugs, fuzzy search, Persian sort, keyboard-layout fix |
-| Money | rial/toman, grouped digits, price in words, VAT helper, Excel-safe CSV export |
+| Jalali calendar | convert, format, parse, add, diff, month grid for date pickers, week/month/quarter/year ranges, relative text (`۳ روز پیش`), age from birth date, form validation, business days (Friday weekend), fixed solar holidays |
+| Iranian validators | national ID, legal-entity national ID, bank card, Sheba, mobile, postal code, bank and operator lookup, phone display formats, address parsing (province, postal code, plaque/unit/floor) |
+| Persian text | normalization, ZWNJ fixes, digits, number and ordinal words, words to number, slugs, fuzzy search, Persian sort, keyboard-layout fix, text stats and reading time, direction detection and bidi wrapping, safe truncation, lorem ipsum |
+| Money | rial/toman, grouped digits, price in words, VAT helper, Excel-safe CSV export, short forms (`۲٫۵ میلیون`), decimals/percents/fractions in words |
 | RTL frontend | guidelines prompt/resource, CSS and Tailwind audit, converters to logical properties, starter snippets, price input snippets, Persian font presets |
 | Data | 31 provinces with ISO 3166-2 codes and capitals |
 
 ## Data notes
 
-Bank BINs, Sheba codes, mobile prefixes and province data only include entries confirmed by public sources. Holidays, plate parsing and national-ID city lookup are not included because reliable offline data could not be verified. The VAT helper needs you to supply the rate.
+Bank BINs, Sheba codes, mobile prefixes and province data only include entries confirmed by public sources. Lunar (Hijri) holiday dates, vehicle plate parsing and national-ID city lookup are not included because reliable offline data could not be verified. The VAT helper needs you to supply the rate.
 
 ## Develop
 
