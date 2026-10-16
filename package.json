@@ -1,6 +1,6 @@
 {
   "name": "parsi-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "mcpName": "io.github.amirjld/parsi-mcp",
   "description": "MCP server for Persian/Iranian apps: Jalali calendar, validators, Persian text, price inputs, RTL frontend tools",
   "keywords": [

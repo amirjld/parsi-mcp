@@ -4,12 +4,12 @@
   "title": "Parsi MCP",
   "description": "Offline Persian/Iran tools: Jalali dates, validators, Persian text, price inputs, RTL frontend.",
   "repository": { "url": "https://github.com/amirjld/parsi-mcp", "source": "github" },
-  "version": "0.2.0",
+  "version": "0.3.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "parsi-mcp",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "transport": { "type": "stdio" }
     }
   ]

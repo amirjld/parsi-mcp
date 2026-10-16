@@ -6,7 +6,7 @@
     {
       "name": "parsi",
       "source": "./",
-      "description": "parsi-mcp server (44 offline tools) plus the persian-rtl-frontend skill: RTL-first UI, grouped price inputs with Persian words, Jalali dates, Iranian validators.",
+      "description": "parsi-mcp server (56 offline tools) plus the persian-rtl-frontend skill: RTL-first UI, grouped price inputs with Persian words, Jalali dates, Iranian validators.",
       "category": "development"
     }
   ]
