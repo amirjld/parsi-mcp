@@ -1,0 +1,25 @@
+// app/layout.tsx  (Next.js App Router, Vazirmatn through next/font, fully RTL)
+import type { Metadata } from "next";
+import { Vazirmatn } from "next/font/google";
+import "./globals.css";
+
+const vazirmatn = Vazirmatn({ subsets: ["arabic", "latin"], variable: "--font-vazirmatn", display: "swap" });
+
+export const metadata: Metadata = { title: "عنوان سایت" };
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="fa" dir="rtl" className={vazirmatn.variable}>
+      <body className="font-sans leading-loose antialiased">{children}</body>
+    </html>
+  );
+}
+
+// app/globals.css  ->  @import "tailwindcss";  (v4)   or the three @tailwind directives (v3)
+//   html { font-family: var(--font-vazirmatn), system-ui, sans-serif; }
+
+// Multi-language with next-intl: derive dir from the locale instead of hard-coding it.
+//   const rtlLocales = ["fa", "ar", "he"];
+//   <html lang={locale} dir={rtlLocales.includes(locale) ? "rtl" : "ltr"}>
+//   Keep messages in messages/fa.json; format dates with the "fa-IR-u-ca-persian" locale (Intl.DateTimeFormat).
+//   const fmt = new Intl.DateTimeFormat("fa-IR-u-ca-persian", { dateStyle: "long" });

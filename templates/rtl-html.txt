@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>عنوان صفحه</title>
+  <link rel="stylesheet" href="rtl-base.css" />
+</head>
+<body>
+  <header class="bar">
+    <a class="back" href="#"><span class="icon-dir" aria-hidden="true">←</span> بازگشت</a>
+    <nav>...</nav>
+  </header>
+  <main>
+    <h1>سلام دنیا</h1>
+    <p>قیمت: <bdi>۱۲۰٬۰۰۰</bdi> تومان</p>
+    <p>ایمیل: <span class="ltr-island" dir="ltr">hello@example.com</span></p>
+  </main>
+</body>
+</html>

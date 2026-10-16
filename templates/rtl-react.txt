@@ -1,0 +1,11 @@
+// React (Vite): index.html -> <html lang="fa" dir="rtl">. For runtime switching:
+import { useEffect } from "react";
+export function useDirection(lang: string) {
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = ["fa", "ar", "he", "ur"].includes(lang) ? "rtl" : "ltr";
+  }, [lang]);
+}
+// Style with logical properties (see rtl-base.css) or Tailwind ms-/me-/ps-/pe-.
+// Component libraries: MUI -> createTheme({ direction: "rtl" }) + stylis-plugin-rtl cache;
+// Radix Themes/Primitives -> <DirectionProvider dir="rtl">; Ant Design -> <ConfigProvider direction="rtl">.

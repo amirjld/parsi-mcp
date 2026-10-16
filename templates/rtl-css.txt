@@ -1,0 +1,22 @@
+/* rtl-base.css : logical properties only, no left/right */
+@font-face { font-family: "Vazirmatn"; src: local("Vazirmatn"), url("/fonts/Vazirmatn[wght].woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+
+:root { --font-fa: "Vazirmatn", system-ui, "Segoe UI", Tahoma, sans-serif; }
+html { font-family: var(--font-fa); line-height: 1.8; /* Persian script needs taller lines than Latin */ }
+body { margin: 0; text-align: start; }
+
+.bar { display: flex; align-items: center; justify-content: space-between; padding-inline: 1rem; gap: .75rem; }
+.card { margin-inline-start: 1rem; padding-inline-end: 1.25rem; border-inline-start: 4px solid currentColor; border-start-start-radius: .75rem; text-align: start; }
+.badge { position: absolute; inset-inline-end: .5rem; inset-block-start: .5rem; }
+.sidebar { float: inline-start; }
+
+/* flip directional icons (arrows, chevrons, back buttons) */
+[dir="rtl"] .icon-dir { display: inline-block; transform: scaleX(-1); }
+
+/* LTR islands: code, emails, URLs, phone numbers, ids */
+.ltr-island, code, pre, kbd { direction: ltr; unicode-bidi: isolate; text-align: left; /* intentional: LTR content */ }
+bdi, [dir="auto"] { unicode-bidi: isolate; }
+
+input, textarea, select { font: inherit; text-align: start; }
+input[type="email"], input[type="url"], input[type="tel"], input[type="number"] { direction: ltr; text-align: end; }
+progress, .progress { direction: rtl; } /* bars fill from the right */

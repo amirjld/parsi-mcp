@@ -1,0 +1,38 @@
+<!-- PriceInput.vue (Vue 3, <script setup>). Also copy persian-words.ts / price-format.ts from the "core" block. -->
+<script setup lang="ts">
+import { computed, nextTick, ref } from "vue";
+import { cleanDigits, formatDigits, caretAfterDigits, toAscii } from "./price-format";
+import { priceWords, type Unit } from "./persian-words";
+
+const props = withDefaults(defineProps<{ modelValue?: string; unit?: Unit; persianDigits?: boolean; maxDigits?: number; name?: string; label?: string }>(),
+  { modelValue: "", unit: "toman", persianDigits: true, maxDigits: 15, name: "price", label: "مبلغ" });
+const emit = defineEmits<{ (e: "update:modelValue", raw: string): void }>();
+
+const input = ref<HTMLInputElement | null>(null);
+const digits = computed(() => cleanDigits(props.modelValue, props.maxDigits));
+const formatted = computed(() => formatDigits(digits.value, props.persianDigits));
+const words = computed(() => priceWords(digits.value, props.unit));
+
+async function onInput(e: Event) {
+  const el = e.target as HTMLInputElement;
+  const caret = el.selectionStart ?? el.value.length;
+  const before = toAscii(el.value.slice(0, caret)).replace(/\D/g, "").length;
+  const next = cleanDigits(el.value, props.maxDigits);
+  emit("update:modelValue", next); // raw ASCII digits
+  await nextTick();
+  el.value = formatDigits(next, props.persianDigits);
+  const pos = caretAfterDigits(el.value, Math.min(before, next.length));
+  el.setSelectionRange(pos, pos);
+}
+</script>
+
+<template>
+  <div class="price-field">
+    <label :for="'price-' + name">{{ label }} ({{ unit === 'toman' ? 'تومان' : 'ریال' }})</label>
+    <input ref="input" :id="'price-' + name" type="text" inputmode="numeric" autocomplete="off" dir="ltr"
+      style="text-align: right" :value="formatted" :aria-describedby="'price-' + name + '-words'" @input="onInput" />
+    <input type="hidden" :name="name" :value="digits" />
+    <output :id="'price-' + name + '-words'" aria-live="polite" class="price-words">{{ words }}</output>
+  </div>
+</template>
+<!-- Submit `digits` (raw ASCII number), not the formatted text. -->

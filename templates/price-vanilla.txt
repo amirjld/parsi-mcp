@@ -1,0 +1,27 @@
+<!-- Vanilla JS price input with live Persian words. -->
+<!-- Use persian-words.js / price-format.js from the "core" block (strip the TypeScript types) or paste them in a <script type="module">. -->
+<div class="price-field">
+  <label for="price">مبلغ (تومان)</label>
+  <input id="price" type="text" inputmode="numeric" autocomplete="off" dir="ltr" style="text-align: right" aria-describedby="price-words" />
+  <input id="price-raw" type="hidden" name="price" />
+  <output id="price-words" aria-live="polite"></output>
+</div>
+
+<script type="module">
+  import { cleanDigits, formatDigits, caretAfterDigits, toAscii } from "./price-format.js";
+  import { priceWords } from "./persian-words.js";
+
+  function attachPriceInput(input, rawField, wordsEl, { unit = "toman", persianDigits = true, maxDigits = 15 } = {}) {
+    input.addEventListener("input", () => {
+      const caret = input.selectionStart ?? input.value.length;
+      const before = toAscii(input.value.slice(0, caret)).replace(/\D/g, "").length;
+      const digits = cleanDigits(input.value, maxDigits);
+      input.value = formatDigits(digits, persianDigits);
+      const pos = caretAfterDigits(input.value, Math.min(before, digits.length));
+      input.setSelectionRange(pos, pos);
+      rawField.value = digits;                 // submit this raw value
+      wordsEl.textContent = priceWords(digits, unit); // aria-live announces updates
+    });
+  }
+  attachPriceInput(document.getElementById("price"), document.getElementById("price-raw"), document.getElementById("price-words"));
+</script>

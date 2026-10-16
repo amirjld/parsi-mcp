@@ -1,0 +1,11 @@
+<!-- Vue 3 + vue-i18n : index.html has <html lang="fa" dir="rtl">. Runtime switching: -->
+<script setup lang="ts">
+import { watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
+const { locale } = useI18n();
+watchEffect(() => {
+  document.documentElement.lang = locale.value;
+  document.documentElement.dir = ["fa", "ar", "he", "ur"].includes(locale.value) ? "rtl" : "ltr";
+});
+</script>
+<!-- Use logical CSS in <style scoped>: margin-inline-start, padding-inline-end, text-align: start, inset-inline-end. -->

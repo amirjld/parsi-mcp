@@ -1,0 +1,64 @@
+// ===== usePriceInput.ts + PriceInput.tsx (React 18+, RTL friendly) =====
+// Also copy persian-words.ts / price-format.ts from the "core" block (tool output "core").
+import { useLayoutEffect, useRef, useState, type ChangeEvent } from "react";
+import { cleanDigits, formatDigits, caretAfterDigits, toAscii } from "./price-format";
+import { priceWords, type Unit } from "./persian-words";
+
+export function usePriceInput({ initial = "", persianDigits = false, maxDigits = 15, unit = "toman" as Unit, onValueChange }:
+  { initial?: string; persianDigits?: boolean; maxDigits?: number; unit?: Unit; onValueChange?: (raw: string) => void } = {}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const caretDigits = useRef<number | null>(null);
+  const [digits, setDigits] = useState(cleanDigits(initial, maxDigits));
+  const formatted = formatDigits(digits, persianDigits);
+
+  function onChange(e: ChangeEvent<HTMLInputElement>) {
+    const el = e.target;
+    const caret = el.selectionStart ?? el.value.length;
+    // how many digits sit left of the caret in what the user just typed (Persian/Arabic/ASCII all count)
+    const before = toAscii(el.value.slice(0, caret)).replace(/\D/g, "").length;
+    const next = cleanDigits(el.value, maxDigits);
+    caretDigits.current = Math.min(before, next.length);
+    setDigits(next);
+    onValueChange?.(next); // raw ASCII digits, e.g. "200000"
+  }
+
+  // restore the caret after React re-renders the formatted value
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el && caretDigits.current !== null && document.activeElement === el) {
+      const pos = caretAfterDigits(formatted, caretDigits.current);
+      el.setSelectionRange(pos, pos);
+    }
+    caretDigits.current = null;
+  }, [formatted]);
+
+  return { ref, digits, formatted, words: priceWords(digits, unit), onChange };
+}
+
+export function PriceInput({ label = "مبلغ", unit = "toman", persianDigits = true, name = "price", onValueChange }:
+  { label?: string; unit?: Unit; persianDigits?: boolean; name?: string; onValueChange?: (raw: string) => void }) {
+  const p = usePriceInput({ unit, persianDigits, onValueChange });
+  const id = "price-" + name;
+  return (
+    <div className="price-field">
+      <label htmlFor={id}>{label} ({unit === "toman" ? "تومان" : "ریال"})</label>
+      {/* dir="ltr" keeps digit grouping stable while typing; text-align is explicit so the number hugs the RTL edge. */}
+      <input
+        ref={p.ref}
+        id={id}
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        dir="ltr"
+        style={{ textAlign: "right" }}
+        value={p.formatted}
+        onChange={p.onChange}
+        aria-describedby={id + "-words"}
+      />
+      {/* Submit the raw number, not the formatted text */}
+      <input type="hidden" name={name} value={p.digits} />
+      <output id={id + "-words"} aria-live="polite" className="price-words">{p.words}</output>
+    </div>
+  );
+}
+// NOTE: send p.digits (ASCII, no separators) to your API / form. Never submit the formatted display string.

@@ -1,0 +1,23 @@
+// Tailwind v3.3+ / v4: use logical utilities. No plugin needed.
+// <html lang="fa" dir="rtl"> then:
+//   ms-4 me-2 ps-3 pe-3 start-0 end-0 text-start border-s border-e rounded-s-lg rounded-ee-xl float-start
+//   direction-aware tweaks: rtl:-scale-x-100 (flip icon), rtl:space-x-reverse, ltr:ml-2, rtl:mr-2
+
+// tailwind.config.js (v3)
+module.exports = {
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  theme: { extend: { fontFamily: { sans: ["var(--font-vazirmatn)", "system-ui", "sans-serif"] } } },
+};
+
+// Example component
+export function BackLink() {
+  return (
+    <a href="/" className="flex items-center gap-2 ps-4 pe-2 text-start">
+      <svg className="size-4 rtl:-scale-x-100" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
+      بازگشت
+    </a>
+  );
+}
+// Emails / phone numbers / code inside RTL text:  <bdi dir="ltr">0912 345 6789</bdi>  or  <span dir="ltr" className="inline-block">a@b.com</span>
+// Slider/carousel: add dir="rtl" to the container and mirror scroll logic (Swiper: set dir="rtl" on the swiper container; Embla: direction: "rtl").
+

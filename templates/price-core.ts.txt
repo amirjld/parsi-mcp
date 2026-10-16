@@ -1,0 +1,48 @@
+// persian-words.ts  (dependency-free, works in browser and Node)
+const ONES = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه", "ده", "یازده", "دوازده", "سیزده", "چهارده", "پانزده", "شانزده", "هفده", "هجده", "نوزده"];
+const TENS = ["", "", "بیست", "سی", "چهل", "پنجاه", "شصت", "هفتاد", "هشتاد", "نود"];
+const HUND = ["", "صد", "دویست", "سیصد", "چهارصد", "پانصد", "ششصد", "هفتصد", "هشتصد", "نهصد"];
+const SCALES = ["", "هزار", "میلیون", "میلیارد", "تریلیون", "کوادریلیون"];
+
+function below1000(n: number): string {
+  const p: string[] = [];
+  if (n >= 100) p.push(HUND[Math.floor(n / 100)]);
+  const r = n % 100;
+  if (r) p.push(r < 20 ? ONES[r] : TENS[Math.floor(r / 10)] + (r % 10 ? " و " + ONES[r % 10] : ""));
+  return p.join(" و ");
+}
+
+/** digits: a string of ASCII digits, e.g. "200000" -> "دویست هزار" */
+export function digitsToWords(digits: string): string {
+  let n = BigInt(digits || "0");
+  if (n === 0n) return "صفر";
+  const groups: number[] = [];
+  while (n > 0n) { groups.push(Number(n % 1000n)); n /= 1000n; }
+  if (groups.length > SCALES.length) return "";
+  const parts: string[] = [];
+  for (let i = groups.length - 1; i >= 0; i--) if (groups[i]) parts.push(below1000(groups[i]) + (SCALES[i] ? " " + SCALES[i] : ""));
+  return parts.join(" و ");
+}
+
+export type Unit = "toman" | "rial";
+export const priceWords = (digits: string, unit: Unit = "toman") =>
+  digits ? digitsToWords(digits) + " " + (unit === "toman" ? "تومان" : "ریال") : "";
+
+// price-format.ts
+export const toAscii = (s: string) =>
+  s.replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
+export const toPersian = (s: string) => s.replace(/\d/g, (d) => String.fromCharCode(0x06f0 + Number(d)));
+export const cleanDigits = (s: string, maxDigits = 15) => toAscii(s).replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, maxDigits);
+export function formatDigits(digits: string, persian = false): string {
+  const g = digits.replace(/\B(?=(\d{3})+(?!\d))/g, persian ? "٬" : ",");
+  return persian ? toPersian(g) : g;
+}
+/** Caret index in `formatted` that sits after the n-th digit (so the caret survives re-formatting). */
+export function caretAfterDigits(formatted: string, n: number): number {
+  if (n <= 0) return 0;
+  let seen = 0;
+  for (let i = 0; i < formatted.length; i++) {
+    if (/[\d۰-۹٠-٩]/.test(formatted[i]) && ++seen === n) return i + 1;
+  }
+  return formatted.length;
+}
